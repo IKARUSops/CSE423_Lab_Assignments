@@ -3,6 +3,7 @@ from OpenGL.GLUT import *
 from OpenGL.GLU import *
 import random
 import math
+import time
 x1 =-15
 x2 = 15
 y1 = -475
@@ -14,6 +15,9 @@ score = 0
 misses = 0
 state = True
 paused = False
+desired_fps = 60  # Target FPS
+frame_time = 1 / desired_fps  # Time per frame
+previous_time = time.time()
 
 def draw_points(x, y):
     glPointSize(5) #pixel size. by default 1 thake
@@ -88,6 +92,7 @@ def iterate():
 
 
 def draw_controls():
+    glColor3f(94/255, 119/255, 138/255)
     y = 480
     x = -300
     x1 = -300 + 20
@@ -95,10 +100,11 @@ def draw_controls():
     draw_lines((x1,y-20),(x1,y))
     draw_lines((x,y-10),(x1,y-20))
 
-
+    glColor3f(0, 1, 0)
     draw_lines((-5,y-20),(-5,y))
     draw_lines((5,y-20),(5,y))
 
+    glColor3f(1, 0, 0)
     draw_lines((-x,y-20),(-x1,y))
     draw_lines((-x1,y-20),(-x,y))
 
@@ -114,7 +120,7 @@ def show_game_over_screen():
     """
     Display the Game Over screen with the final score.
     """
-    global score,misses
+    global score,misses, lives
     glMatrixMode(GL_PROJECTION)
     glPushMatrix()
     glLoadIdentity()
@@ -131,6 +137,7 @@ def show_game_over_screen():
     # Display the score
     display_text(-100, -50, f"Your Score: {score}", GLUT_BITMAP_TIMES_ROMAN_24)
     display_text(-100, -75, f"Your Misses: {misses}", GLUT_BITMAP_TIMES_ROMAN_24)
+    display_text(-100, -100, f"Your Lives: {lives}", GLUT_BITMAP_TIMES_ROMAN_24)
 
     glMatrixMode(GL_PROJECTION)
     glPopMatrix()
@@ -170,6 +177,8 @@ def draw_ship():
     global x2
     global y1
     global y2
+    global score
+    glColor3f(176/255, 190/255, 197/255)
     draw_lines((x1,y1),(x1,y2))
     draw_lines((x2,y1),(x2,y2))
     draw_lines((x1,y1),(x2,y1))
@@ -181,10 +190,14 @@ def draw_ship():
 
     draw_lines((x1-15,y1),(x1,y1))
     draw_lines((x2,y1),(x2+15,y1))
-    draw_lines((x1-15,y1),(x1,-450))
-    draw_lines((x2+15,y1),(x2,-450))
+    draw_lines((x1-15,y1),(x1,min(y1+25+(score/5),y2)))
+    draw_lines((x2+15,y1),(x2,min(y1+25+(score/5),y2)))
 
 def draw_circle():
+
+    global previous_time
+    start_time = time.time()
+    glColor3f(161/255, 136/255, 117/255)
     def midpoint_circle(radius, x_center, y_center):
         x = 0
         y = radius
@@ -220,16 +233,17 @@ def draw_circle():
     global score
     global lives
     global state
+
     # Create a new circle at the top if no circles or if the last circle has passed midpoint
     if not obstacle or all(circle[1] <= 0 for circle in obstacle):
         x_center = random.choice(range(-320, 320, 50))
         y_center = 400
-        radius = random.choice([10, 20, 30, 40])
+        radius = random.choice([20, 30, 40])
         obstacle.append([x_center, y_center, radius])
 
     for circle in obstacle[:]:  # Iterate over a copy to allow safe removal
         x_center, y_center, radius = circle
-        y_center -= 1  # Move the circle downward
+        y_center -= max((score//50),2)  # Move the circle downward
         circle[1] = y_center  # Update the y-coordinate
 
         # Remove the circle if it has reached the bottom of the screen
@@ -251,18 +265,27 @@ def draw_circle():
         for point in points:
             draw_points(point[0], point[1])
 
+        elapsed_time = time.time() - start_time
+        remaining_time = frame_time - elapsed_time
+        if remaining_time > 0:
+            time.sleep(remaining_time)
+
 
     
 
 def draw_laser(x=None,y=-380):
-    global laser, misses
+    global laser, misses, state
+    glColor3f(1, 1, 1)
     if x == None:
         for i in laser:
-            draw_lines((i[0],i[1]),(i[0],i[1]+10))
-            i[1] += 10 
+            draw_lines((i[0],i[1]),(i[0],i[1]+40))
+            i[1] += 30 
             if i[1] >= 512:
                 laser.remove(i)
                 misses += 1
+            if misses>=3:
+                state = False
+
     else:
         draw_lines((x,y),(x,y+10))
         laser.append([x,y])
@@ -313,6 +336,7 @@ def keyboardListener(key, x, y):
 
     global x1
     global x2
+    global score
     if key==b'a':
         x1 -= 15
         x2 -= 15
@@ -321,8 +345,8 @@ def keyboardListener(key, x, y):
             x1 = x2 - 30
         
     if key==b'd':
-        x1 += 15
-        x2 += 15
+        x1 += 15 + (score/5)
+        x2 += 15 + (score/5)
         if x1 >= 384:
             x1 = -384
             x2 = x1 + 30
@@ -355,6 +379,9 @@ def showScreen():
 
             glColor3f(1, 1, 1)  # White text
             display_text(-50, 0, "PAUSED", GLUT_BITMAP_TIMES_ROMAN_24)
+            display_text(-100, -50, f"Your Score: {score}", GLUT_BITMAP_TIMES_ROMAN_24)
+            display_text(-100, -75, f"Your Misses: {misses}", GLUT_BITMAP_TIMES_ROMAN_24)
+            display_text(-100, -100, f"Your Lives: {lives}", GLUT_BITMAP_TIMES_ROMAN_24)
 
             glMatrixMode(GL_PROJECTION)
             glPopMatrix()
