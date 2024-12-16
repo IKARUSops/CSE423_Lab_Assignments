@@ -14,26 +14,7 @@ score = 0
 misses = 0
 state = True
 paused = False
-shapes = {
-'tortoise': [(-240, 200), (-200, 200), (-240, 200), (-240, 240), (-240, 240), (-200, 240),
-                (-200, 240), (-200, 200), (-210, 180), (-170, 180), (-170, 180), (-170, 200),
-                (-170, 200), (-210, 200), (-210, 200), (-210, 180), (-290, 170), (-260, 170),
-                (-210, 170), (-240, 170), (-290, 190), (-260, 190), (-170, 190), (-210, 190),
-                (-250, 160)],
-'rabbit': [(-240, 240), (-200, 240), (-240, 240), (-240, 280), (-240, 280), (-200, 280),
-            (-200, 280), (-200, 240), (-230, 220), (-210, 220), (-210, 220), (-210, 240),
-            (-210, 240), (-230, 240), (-230, 240), (-230, 220), (-250, 260), (-240, 260),
-            (-190, 260), (-200, 260), (-230, 245), (-220, 245), (-210, 245), (-220, 245)],
-'cat': [(-240, 280), (-200, 280), (-240, 280), (-240, 320), (-240, 320), (-200, 320),
-        (-200, 320), (-200, 280), (-230, 260), (-210, 260), (-210, 260), (-210, 280),
-        (-210, 280), (-230, 280), (-230, 280), (-230, 260), (-250, 300), (-240, 300),
-        (-190, 300), (-200, 300), (-230, 285), (-220, 285), (-210, 285), (-220, 285),
-        (-220, 250)],
-'dragon': [(-250, 320), (-190, 320), (-250, 320), (-250, 360), (-250, 360), (-190, 360),
-            (-190, 360), (-190, 320), (-240, 300), (-200, 300), (-200, 300), (-200, 320),
-            (-200, 320), (-240, 320), (-240, 320), (-240, 300), (-260, 340), (-210, 340),
-            (-210, 340), (-180, 360), (-230, 280), (-220, 280)]
-}
+
 def draw_points(x, y):
     glPointSize(5) #pixel size. by default 1 thake
     glBegin(GL_POINTS)
@@ -353,31 +334,6 @@ def keyboardListener(key, x, y):
 def animate():
     glutPostRedisplay()  
 
-def draw_art():
-    global shapes
-    # for i in range(len(shapes['dragon'])-1):
-    #     xy0 = shapes['dragon'][i]
-    #     xy1 = shapes['dragon'][i + 1]
-    #     draw_lines(xy0,xy1)
-
-
-    # for i in range(len(shapes['tortoise'])-1):
-    #     xy0 = shapes['tortoise'][i]
-    #     xy1 = shapes['tortoise'][i + 1]
-    #     draw_lines(xy0,xy1)
-
-    # for i in range(len(shapes['rabbit'])-1):
-    #     xy0 = shapes['rabbit'][i]
-    #     xy1 = shapes['rabbit'][i + 1]
-    #     draw_lines(xy0,xy1)
-
-    for i in range(len(shapes['cat'])-1):
-        xy0 = shapes['cat'][i]
-        xy1 = shapes['cat'][i + 1]
-        draw_lines(xy0,xy1)
-
-
-
 def showScreen():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
@@ -386,35 +342,32 @@ def showScreen():
     #call the draw methods here
     global state
     global paused
-    
-    draw_art()
-    
-    # if state:
-    #     if paused:
-    #         # Show "Paused" overlay when the game is paused
-    #         glMatrixMode(GL_PROJECTION)
-    #         glPushMatrix()
-    #         glLoadIdentity()
-    #         glOrtho(-320, 320, -240, 240, -1, 1)
-    #         glMatrixMode(GL_MODELVIEW)
-    #         glPushMatrix()
-    #         glLoadIdentity()
+    if state:
+        if paused:
+            # Show "Paused" overlay when the game is paused
+            glMatrixMode(GL_PROJECTION)
+            glPushMatrix()
+            glLoadIdentity()
+            glOrtho(-320, 320, -240, 240, -1, 1)
+            glMatrixMode(GL_MODELVIEW)
+            glPushMatrix()
+            glLoadIdentity()
 
-    #         glColor3f(1, 1, 1)  # White text
-    #         display_text(-50, 0, "PAUSED", GLUT_BITMAP_TIMES_ROMAN_24)
+            glColor3f(1, 1, 1)  # White text
+            display_text(-50, 0, "PAUSED", GLUT_BITMAP_TIMES_ROMAN_24)
 
-    #         glMatrixMode(GL_PROJECTION)
-    #         glPopMatrix()
-    #         glMatrixMode(GL_MODELVIEW)
-    #         glPopMatrix()
-    #     else: 
-    #         draw_ship()
-    #         draw_circle()
-    #         draw_laser()
-    #     draw_controls()
-    # else:
-    #     draw_controls()
-    #     show_game_over_screen()
+            glMatrixMode(GL_PROJECTION)
+            glPopMatrix()
+            glMatrixMode(GL_MODELVIEW)
+            glPopMatrix()
+        else: 
+            draw_ship()
+            draw_circle()
+            draw_laser()
+        draw_controls()
+    else:
+        draw_controls()
+        show_game_over_screen()
     glutSwapBuffers()
 
 
@@ -426,6 +379,6 @@ glutInitWindowPosition(0, 0)
 wind = glutCreateWindow(b"OpenGL Coding Practice") #window name
 glutDisplayFunc(showScreen)
 glutIdleFunc(animate) 
-# glutKeyboardFunc(keyboardListener)
-# glutMouseFunc(mouseListener)
+glutKeyboardFunc(keyboardListener)
+glutMouseFunc(mouseListener)
 glutMainLoop() 
