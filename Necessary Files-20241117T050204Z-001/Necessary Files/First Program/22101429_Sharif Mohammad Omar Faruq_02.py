@@ -183,7 +183,7 @@ def draw_ship():
     draw_lines((x2,y1),(x2,y2))
     draw_lines((x1,y1),(x2,y1))
     draw_lines((x1,y2),(x2,y2))
-    
+
     draw_lines((x1,y2),(x2,y2))
     draw_lines((x1,y2),((x1+x2)/2,-340))
     draw_lines((x2,y2),((x1+x2)/2,-340))
